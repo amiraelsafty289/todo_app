@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_project/ui/home/List/ToDoListFragment.dart';
 import 'package:todo_project/ui/home/Settings/SettingsFragment.dart';
+import 'package:todo_project/ui/home/addToDo/AddToDoBottomSheet.dart';
 
 class HomeScreen extends StatefulWidget{
   static final String ROUTE_NAME = 'home';
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          openAddToDo;
+          openAddToDo();
         },
         child: Icon(Icons.add, color: Colors.white,),
       ),
@@ -63,16 +64,20 @@ class _HomeScreenState extends State<HomeScreen> {
     if(selectedIndex == 0){
       return ToDoListFragment();
     }else{
-      return SettingFragment();
+      return SettingsFragments();
     }
   }
   void openAddToDo(){
-    showBottomSheet(
+    showModalBottomSheet(
         context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+          ),
+        ),
         builder: (builder){
-          return Container(
-            child: Text('Hello Bottom Sheet'),
-          );
+          return  AddToDoBottomSheet();
         }
     );
         }
