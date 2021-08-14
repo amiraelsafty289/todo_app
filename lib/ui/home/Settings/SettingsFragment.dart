@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_project/Providers/ThemeProvider.dart';
+import 'package:todo_project/Providers/AppConfigProvider.dart';
 import 'package:todo_project/main.dart';
-import 'package:todo_project/ui/home/Settings/LanguageBottomSheet.dart';
+import 'package:todo_project/ui/home/Settings/LocaleBottomSheet.dart';
 import 'package:todo_project/ui/home/Settings/ThemeBottomSheet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsFragments extends StatefulWidget {
   @override
@@ -13,7 +14,8 @@ class SettingsFragments extends StatefulWidget {
 class _SettingsFragmentsState extends State<SettingsFragments> {
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<AppConfigProvider>(context);
+    final localeProvider = Provider.of<AppConfigProvider>(context);
     return Container(
       margin: EdgeInsets.only(top: 10),
       padding: EdgeInsets.all(20),
@@ -21,7 +23,56 @@ class _SettingsFragmentsState extends State<SettingsFragments> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Mode',
+            AppLocalizations.of(context).language,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkModeEnabled()
+                  ? MyThemeData.whiteColor
+                  : MyThemeData.blackColor,
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              showLocaleBottomSheet();
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: 18, left: 8),
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: MyThemeData.whiteColor,
+                border: Border.all(
+                  width: 1,
+                  color: MyThemeData.primaryColor,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: localeProvider.locale == 'en'
+                        ? Text(
+                            'English',
+                            style: TextStyle(color: MyThemeData.primaryColor),
+                          )
+                        : Text(
+                            'العربية',
+                            style: TextStyle(color: MyThemeData.primaryColor),
+                          ),
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down_sharp,
+                    color: MyThemeData.primaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 35,
+          ),
+          Text(
+            AppLocalizations.of(context).theme,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -50,64 +101,17 @@ class _SettingsFragmentsState extends State<SettingsFragments> {
                   Expanded(
                     child: themeProvider.isDarkModeEnabled()
                         ? Text(
-                            'Dark',
+                            AppLocalizations.of(context).dark,
                             style: TextStyle(color: MyThemeData.primaryColor),
                           )
                         : Text(
-                            'Light',
+                            AppLocalizations.of(context).light,
                             style: TextStyle(color: MyThemeData.primaryColor),
                           ),
                   ),
                   Icon(
                     Icons.arrow_drop_down_sharp,
                     color: MyThemeData.primaryColor,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 35,
-          ),
-          Text(
-            'Language',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkModeEnabled()
-                  ? MyThemeData.whiteColor
-                  : MyThemeData.blackColor,
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              showLanguageBottomSheet();
-            },
-            child: Container(
-              margin: EdgeInsets.only(top: 18, left: 8),
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MyThemeData.whiteColor,
-                border: Border.all(
-                  width: 1,
-                  color: MyThemeData.primaryColor,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'English',
-                        style: TextStyle(
-                          color: MyThemeData.primaryColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -132,7 +136,7 @@ class _SettingsFragmentsState extends State<SettingsFragments> {
         });
   }
 
-  void showLanguageBottomSheet() {
+  void showLocaleBottomSheet() {
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(
@@ -142,7 +146,7 @@ class _SettingsFragmentsState extends State<SettingsFragments> {
           ),
         ),
         builder: (builder) {
-          return LanguageBottomSheet();
+          return LocaleBottomSheet();
         });
   }
 }

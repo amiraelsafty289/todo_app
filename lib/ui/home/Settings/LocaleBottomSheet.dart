@@ -1,40 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_project/Providers/AppConfigProvider.dart';
 import 'package:todo_project/main.dart';
 
-class ThemeBottomSheet extends StatelessWidget {
-  AppConfigProvider themeProvider;
+class LocaleBottomSheet extends StatelessWidget {
+  AppConfigProvider localeProvider;
   @override
   Widget build(BuildContext context) {
-    themeProvider = Provider.of<AppConfigProvider>(context);
+    localeProvider = Provider.of<AppConfigProvider>(context);
     return Container(
       padding: EdgeInsets.all(15),
       margin: EdgeInsets.all(15),
       child: Column(
         children: [
           InkWell(
-              onTap: () {
-                if (themeProvider.isDarkModeEnabled()) {
-                  themeProvider.toggleTheme();
-                  saveTheme('Light');
-                  Navigator.pop(context);
-                }
-              },
-              child: getRow('Light', !themeProvider.isDarkModeEnabled())),
-          SizedBox(
-            height: 20,
-          ),
-          InkWell(
             onTap: () {
-              if (!themeProvider.isDarkModeEnabled()) {
-                themeProvider.toggleTheme();
-                saveTheme('Dark');
+              if (localeProvider.locale != 'en') {
+                localeProvider.changeLocale('en');
+                localeProvider.saveLocalization('en');
                 Navigator.pop(context);
               }
             },
-            child: getRow('Dark', themeProvider.isDarkModeEnabled()),
+            child: getRow('English', localeProvider.locale == 'en'),
+          ),
+          SizedBox(
+            height: 24,
+          ),
+          InkWell(
+            onTap: () {
+              if (localeProvider.locale != 'ar') {
+                localeProvider.changeLocale('ar');
+                localeProvider.saveLocalization('ar');
+                Navigator.pop(context);
+              }
+            },
+            child: getRow('العربية', localeProvider.locale == 'ar'),
           ),
         ],
       ),
@@ -71,7 +71,7 @@ class ThemeBottomSheet extends StatelessWidget {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: themeProvider.isDarkModeEnabled()
+                  color: localeProvider.isDarkModeEnabled()
                       ? MyThemeData.whiteColor
                       : MyThemeData.blackColor),
             ),
@@ -79,10 +79,5 @@ class ThemeBottomSheet extends StatelessWidget {
         ],
       );
     }
-  }
-
-  void saveTheme(String newTheme) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('theme', newTheme);
   }
 }

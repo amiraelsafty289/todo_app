@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_project/Providers/AppConfigProvider.dart';
 import 'package:todo_project/main.dart';
 import 'package:todo_project/ui/home/DataBase/Model/ToDo.dart';
 
@@ -8,13 +10,19 @@ class ToDoItem extends StatelessWidget {
   Function onDeleteAction;
   Function onItemCheck;
   Function onItemPressed;
+  int index;
   ToDoItem(
-      {this.todo, this.onDeleteAction, this.onItemCheck, this.onItemPressed});
+      {this.todo,
+      this.onDeleteAction,
+      this.onItemCheck,
+      this.onItemPressed,
+      this.index});
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<AppConfigProvider>(context);
     return InkWell(
       onTap: () {
-        onItemPressed(todo, context);
+        onItemPressed(todo, context, index);
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
@@ -24,7 +32,9 @@ class ToDoItem extends StatelessWidget {
           child: InkWell(
             child: Container(
               decoration: BoxDecoration(
-                color: MyThemeData.whiteColor,
+                color: themeProvider.isDarkModeEnabled()
+                    ? MyThemeData.darkThemeColor
+                    : MyThemeData.whiteColor,
                 borderRadius: BorderRadius.circular(15),
               ),
               padding: EdgeInsets.all(15),
@@ -63,11 +73,24 @@ class ToDoItem extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                Icon(Icons.calendar_today_outlined),
+                                Icon(
+                                  Icons.calendar_today_outlined,
+                                  color: themeProvider.isDarkModeEnabled()
+                                      ? MyThemeData.whiteColor
+                                      : MyThemeData.darkBlackColor,
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
                                 Text(
                                   '${todo.dateTime.day}/${todo.dateTime.month}/${todo.dateTime.year}'
                                       .toString(),
                                   textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: themeProvider.isDarkModeEnabled()
+                                        ? MyThemeData.whiteColor
+                                        : MyThemeData.darkBlackColor,
+                                  ),
                                 ),
                               ],
                             ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_project/Providers/AppConfigProvider.dart';
 import 'package:todo_project/main.dart';
 import 'package:todo_project/ui/home/DataBase/Model/ToDo.dart';
 
@@ -12,21 +14,23 @@ class EditToDoItem extends StatefulWidget {
 
 class _EditToDoItemState extends State<EditToDoItem> {
   ToDo todo;
-  String title ;
-  String content ;
-  DateTime date ;
-  int buildTimeCounter = 0 ;
+  String title;
+  String content;
+  DateTime date;
+  int buildTimeCounter = 0;
   bool titleError = false;
   bool contentError = false;
   bool dateError = false;
+  int index;
 
   @override
   Widget build(BuildContext context) {
-    if(buildTimeCounter == 0) {
-      todo = ModalRoute
-          .of(context)
-          .settings
-          .arguments as ToDo;
+    final themeProvider = Provider.of<AppConfigProvider>(context);
+    if (buildTimeCounter == 0) {
+      Map<String, Object> map = ModalRoute.of(context).settings.arguments;
+      ;
+      todo = map['todo'];
+      index = map['index'];
       if (todo != null) {
         title = todo.title;
         content = todo.content;
@@ -35,7 +39,9 @@ class _EditToDoItemState extends State<EditToDoItem> {
       }
     }
     return Scaffold(
-      backgroundColor: MyThemeData.accentColor,
+      backgroundColor: themeProvider.isDarkModeEnabled()
+          ? MyThemeData.darkThemeColorBg
+          : MyThemeData.accentColor,
       body: SingleChildScrollView(
         child: Stack(
           children: [
@@ -48,7 +54,15 @@ class _EditToDoItemState extends State<EditToDoItem> {
                 padding: EdgeInsets.only(bottom: 120),
                 child: AppBar(
                   elevation: 0,
-                  title: Text('To Do List'),
+                  title: Text(
+                    'To Do List',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: themeProvider.isDarkModeEnabled()
+                            ? MyThemeData.blackColor
+                            : MyThemeData.whiteColor),
+                  ),
                   backgroundColor: MyThemeData.primaryColor,
                 ),
               ),
@@ -60,7 +74,9 @@ class _EditToDoItemState extends State<EditToDoItem> {
               width: 365,
               height: 588,
               decoration: BoxDecoration(
-                color: MyThemeData.whiteColor,
+                color: themeProvider.isDarkModeEnabled()
+                    ? MyThemeData.darkThemeColor
+                    : MyThemeData.whiteColor,
                 borderRadius: BorderRadius.all(Radius.circular(30)),
               ),
               child: Column(
@@ -71,7 +87,9 @@ class _EditToDoItemState extends State<EditToDoItem> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: MyThemeData.darkBlackColor,
+                      color: themeProvider.isDarkModeEnabled()
+                          ? MyThemeData.whiteColor
+                          : MyThemeData.darkBlackColor,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -79,6 +97,13 @@ class _EditToDoItemState extends State<EditToDoItem> {
                     height: 30,
                   ),
                   TextFormField(
+                    style: TextStyle(
+                      color: themeProvider.isDarkModeEnabled()
+                          ? MyThemeData.whiteColor
+                          : MyThemeData.darkBlackColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                     initialValue: title,
                     onChanged: (newText) {
                       if (!newText.isEmpty) {
@@ -93,7 +118,9 @@ class _EditToDoItemState extends State<EditToDoItem> {
                       hintStyle: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: MyThemeData.darkBlackColor,
+                        color: themeProvider.isDarkModeEnabled()
+                            ? MyThemeData.whiteColor
+                            : MyThemeData.darkBlackColor,
                       ),
                       errorText:
                           titleError ? 'Please enter a valid title' : null,
@@ -107,6 +134,13 @@ class _EditToDoItemState extends State<EditToDoItem> {
                     height: 30,
                   ),
                   TextFormField(
+                    style: TextStyle(
+                      color: themeProvider.isDarkModeEnabled()
+                          ? MyThemeData.whiteColor
+                          : MyThemeData.darkBlackColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                     initialValue: content,
                     onChanged: (newText) {
                       if (!newText.isEmpty) {
@@ -123,7 +157,9 @@ class _EditToDoItemState extends State<EditToDoItem> {
                       hintStyle: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: MyThemeData.darkBlackColor,
+                        color: themeProvider.isDarkModeEnabled()
+                            ? MyThemeData.whiteColor
+                            : MyThemeData.darkBlackColor,
                       ),
                       errorText:
                           contentError ? 'Please enter a valid content' : null,
@@ -207,41 +243,40 @@ class _EditToDoItemState extends State<EditToDoItem> {
       ),
     );
   }
-  bool validation(){
-    bool valid = true ;
-    if(title.isEmpty){
+
+  bool validation() {
+    bool valid = true;
+    if (title.isEmpty) {
       setState(() {
-        titleError = true ;
-        valid = false ;
-      });
-    }if(content.isEmpty){
-      setState(() {
-        contentError = true ;
-        valid = false ;
-      });
-    }if(date == null){
-      setState(() {
-        dateError = true ;
-        valid = false ;
+        titleError = true;
+        valid = false;
       });
     }
-    return valid ;
+    if (content.isEmpty) {
+      setState(() {
+        contentError = true;
+        valid = false;
+      });
+    }
+    if (date == null) {
+      setState(() {
+        dateError = true;
+        valid = false;
+      });
+    }
+    return valid;
   }
 
   void editToDoItem(BuildContext context) async {
-    if(!validation()) return ;
+    if (!validation()) return;
     var box = await Hive.openBox<ToDo>(ToDo.BOX_NAME);
-    List<ToDo> list = box.values.toList();
-    int index = 0;
-    print(todo.title);
-    print(todo.content);
-    print(todo.dateTime);
-    for(int i = 0 ; i < list.length ; i++){
-      if(todo.title == list[i].title){
-        index = i ;
-      }
-    }
-    box.putAt(index, ToDo(title: title , content: content , dateTime: date , isDone: todo.isDone ));
+    box.putAt(
+        index,
+        ToDo(
+            title: title,
+            content: content,
+            dateTime: date,
+            isDone: todo.isDone));
     Navigator.pop(context);
   }
 
